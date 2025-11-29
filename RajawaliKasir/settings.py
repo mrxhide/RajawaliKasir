@@ -3,13 +3,25 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-pcu#gbaw8(7s#_^khsl*c0@6m@q8-qecetn5b5dw@v%dec#n4#'
-
 # -------------------------------
 # DEPLOY SETTINGS
 # -------------------------------
-DEBUG = False   # WAJIB: False kalau deploy
-ALLOWED_HOSTS = ["*", ".onrender.com", "127.0.0.1", "localhost"]
+
+SECRET_KEY = os.environ.get("SECRET_KEY", "django-insecure-development")
+
+DEBUG = False  # WAJIB False untuk deploy
+
+ALLOWED_HOSTS = [
+    "*",                # Render
+    ".onrender.com",    # Domain Render
+    "127.0.0.1",        # Local
+    "localhost",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.onrender.com",
+]
+
 
 # -------------------------------
 # INSTALLED APPS
