@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3 class="mb-4">
+    <i class="bi bi-arrow-down-circle"></i> Stok Masuk
+</h3>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="form-label">Produk</label>
+                {{ form.product }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Jumlah Masuk</label>
+                {{ form.quantity }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Catatan / Supplier</label>
+                {{ form.note }}
+            </div>
+
+            <button class="btn btn-success">Simpan</button>
+            <a href="{% url 'kasir:stok_masuk_list' %}" class="btn btn-secondary">Riwayat Stok</a>
+
+        </div>
+    </div>
+
+</form>
+
+{% endblock %}

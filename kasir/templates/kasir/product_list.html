@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body d-flex justify-content-between align-items-center">
+        <h4 class="m-0 fw-bold text-primary">
+            <i class="bi bi-box-seam"></i> Daftar Produk
+        </h4>
+
+        <a href="{% url 'kasir:product_add' %}" class="btn btn-primary shadow-sm">
+            <i class="bi bi-plus-circle"></i> Tambah Produk
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+
+        <div class="table-responsive">
+            <table class="table table-hover table-bordered table-striped m-0 align-middle">
+
+                <thead class="table-primary text-center">
+                    <tr>
+                        <th width="80">Foto</th>
+                        <th>Nama</th>
+                        <th>Kategori</th>
+                        <th>Harga Jual</th>
+                        <th>Stok</th>
+                        <th>Status</th>
+                        <th width="150">Aksi</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                {% for p in products %}
+                    <tr>
+
+                        <!-- FOTO PRODUK -->
+                        <td class="text-center">
+                            {% if p.image %}
+                                <img src="{{ p.image.url }}"
+                                     class="rounded border"
+                                     style="width:60px; height:60px; object-fit:cover;">
+                            {% else %}
+                                <img src="https://via.placeholder.com/60x60?text=No+Image"
+                                     class="rounded border"
+                                     style="width:60px; height:60px; object-fit:cover;">
+                            {% endif %}
+                        </td>
+
+                        <!-- NAMA -->
+                        <td class="fw-semibold">{{ p.name }}</td>
+
+                        <!-- KATEGORI -->
+                        <td>
+                            {% if p.category %}
+                                <span class="badge bg-info text-dark px-3 py-2">{{ p.category }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary px-3 py-2">-</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- HARGA -->
+                        <td class="text-success fw-bold">
+                            Rp {{ p.sell_price|floatformat:0 }}
+                        </td>
+
+                        <!-- STOK -->
+                        <td class="fw-semibold">{{ p.stock }}</td>
+
+                        <!-- STATUS -->
+                        <td class="text-center">
+                            {% if p.is_active %}
+                                <span class="badge bg-success px-3 py-2">Aktif</span>
+                            {% else %}
+                                <span class="badge bg-secondary px-3 py-2">Nonaktif</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- AKSI -->
+                        <td class="text-center">
+
+                            <a href="{% url 'kasir:product_edit' p.id %}"
+                               class="btn btn-sm btn-warning me-1 shadow-sm">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
+
+                            <a href="{% url 'kasir:product_delete' p.id %}"
+                               class="btn btn-sm btn-danger shadow-sm"
+                               onclick="return confirm('Nonaktifkan produk ini?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">
+                            <i class="bi bi-inboxes fs-2 d-block"></i>
+                            Belum ada produk.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}

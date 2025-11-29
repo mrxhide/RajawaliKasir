@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Laporan Penjualan{% endblock %}
+
+{% block content %}
+
+<h3 class="mb-4 fw-bold">
+    <i class="bi bi-file-earmark-bar-graph"></i> Laporan Penjualan
+</h3>
+
+<div class="row">
+
+    <!-- LEFT COLUMN -->
+    <div class="col-lg-4 mb-4">
+
+        <!-- FILTER -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-primary text-white">
+                <strong>Filter Laporan</strong>
+            </div>
+
+            <div class="card-body">
+                <form method="get" class="row g-3">
+
+                    <div class="col-12">
+                        <label class="form-label">Dari Tanggal</label>
+                        <input type="date" name="start_date" value="{{ start_date }}" class="form-control">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Sampai Tanggal</label>
+                        <input type="date" name="end_date" value="{{ end_date }}" class="form-control">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Kasir</label>
+                        <select name="cashier" class="form-control">
+                            <option value="">Semua Kasir</option>
+                            {% for u in cashiers %}
+                                <option value="{{ u.id }}" 
+                                    {% if cashier_id == u.id|stringformat:"s" %}selected{% endif %}>
+                                    {{ u.username }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-12 mt-3 d-flex">
+                        <button class="btn btn-primary w-50 me-2">Tampilkan</button>
+
+                        <a href="{% url 'kasir:sales_report' %}" class="btn btn-secondary w-50">
+                            <i class="bi bi-arrow-counterclockwise"></i> Reset Filter
+                        </a>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+
+        <!-- RINGKASAN -->
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-light">
+                <strong>Ringkasan</strong>
+            </div>
+
+            <div class="card-body">
+
+                <div class="mb-3">
+                    <h6 class="text-muted">Total Pendapatan</h6>
+                    <h4 class="text-success fw-bold">Rp {{ total_revenue }}</h4>
+                </div>
+
+                <div>
+                    <h6 class="text-muted">Jumlah Transaksi</h6>
+                    <h4 class="fw-bold">{{ total_transactions }}</h4>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- RIGHT COLUMN -->
+    <div class="col-lg-8">
+
+        <!-- REKAP PER HARI -->
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <strong>Rekap Per Hari</strong>
+
+                <form method="POST" action="{% url 'kasir:reset_rekap' %}" id="resetRekapForm">
+                    {% csrf_token %}
+                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="confirmResetRekap()">
+                        Reset Rekap
+                    </button>
+                </form>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-primary">
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Jumlah Transaksi</th>
+                                <th>Total</th>
+                                <th>Produk Terlaris</th>
+                                <th>Kategori</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                        {% for d in rekap %}
+                            <tr>
+                                <td>{{ d.day }}</td>
+                                <td>{{ d.count }}</td>
+                                <td>Rp {{ d.total }}</td>
+                                <td>{{ d.product }}</td>
+                                <td>{{ d.category }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted py-3">
+                                    Tidak ada data.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- DETAIL TRANSAKSI -->
+        <div class="card shadow-sm border-0">
+           <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+    <strong>Detail Transaksi</strong>
+
+    <div class="d-flex gap-2">
+        <!-- Export EXCEL -->
+        <a href="{% url 'kasir:export_detail_excel' %}" class="btn btn-sm btn-success">
+            <i class="bi bi-file-earmark-excel"></i>
+        </a>
+
+        <!-- Export PDF -->
+        <a href="{% url 'kasir:export_detail_pdf' %}" class="btn btn-sm btn-danger">
+            <i class="bi bi-file-earmark-pdf"></i>
+        </a>
+
+        <!-- RESET -->
+        <form method="POST" action="{% url 'kasir:reset_detail' %}" id="resetDetailForm">
+            {% csrf_token %}
+            <button type="button" class="btn btn-sm btn-light" onclick="confirmResetDetail()">
+                Reset
+            </button>
+        </form>
+    </div>
+</div>
+
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0 align-middle">
+                        <thead class="table-secondary">
+                            <tr>
+                                <th>Tanggal</th>
+                                <th>Invoice</th>
+                                <th>Kasir</th>
+                                <th>Metode</th>
+                                <th>Total</th>
+                                <th>Barang</th>
+                                <th>Kategori</th>
+                            </tr>
+                        </thead>
+
+                    <tbody>
+                            {% for sale in sales %}
+                                <tr>
+                                    <td>{{ sale.date_time }}</td>
+                                    <td>{{ sale.invoice_no }}</td>
+                                    <td>{{ sale.cashier.username }}</td>
+                                    <td>{{ sale.payment_method }}</td>
+                                    <td>Rp {{ sale.total }}</td>
+
+                                    <!-- BARANG -->
+                                    <td>
+                                        {% for item in sale.items.all %}
+                                            <div>{{ item.product.name }} (x{{ item.qty }})</div>
+                                        {% endfor %}
+                                    </td>
+
+                                    <!-- KATEGORI -->
+                                    <td>
+                                        {% for item in sale.items.all %}
+                                            <div>{{ item.product.category.name }}</div>
+                                        {% endfor %}
+                                    </td>
+
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted py-3">
+                                        Tidak ada transaksi.
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                    </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function confirmResetDetail() {
+    Swal.fire({
+        title: "Hapus Semua Detail Transaksi?",
+        text: "Data akan dihapus PERMANEN!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya, hapus!",
+        cancelButtonText: "Batal"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById("resetDetailForm").submit();
+        }
+    });
+}
+
+function confirmResetRekap() {
+    Swal.fire({
+        title: "Hapus Semua Rekap Harian?",
+        text: "Data akan dihapus PERMANEN!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya, hapus!",
+        cancelButtonText: "Batal"
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById("resetRekapForm").submit();
+        }
+    });
+}
+</script>
+
+{% endblock %}

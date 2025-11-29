@@ -1,0 +1,46 @@
+<style>
+.product-card {
+    transition: 0.2s;
+    cursor: pointer;
+}
+.product-card:hover {
+    transform: scale(1.03);
+}
+.product-img {
+    height: 140px;
+    object-fit: cover;
+    border-radius: 6px;
+}
+</style>
+
+<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-3">
+
+    {% for p in products %}
+    <div class="col">
+        <div class="card product-card shadow-sm">
+
+            <img src="{{ p.image.url|default:'https://via.placeholder.com/300' }}"
+                 id="prod-img-{{ p.id }}"
+                 class="card-img-top product-img">
+
+            <div class="card-body text-center">
+                <h6 class="fw-bold">{{ p.name }}</h6>
+                <div class="text-primary fw-bold mb-2">
+                    Rp {{ p.sell_price|floatformat:0 }}
+                </div>
+
+                <button class="btn btn-primary btn-sm fw-bold"
+                        data-stock="{{ p.stock }}"
+                        onclick="addToCart(this, {{ p.id }})"
+                        hx-post="/pos/cart/add/{{ p.id }}/"
+                        hx-target="#cart-list"
+                        hx-swap="innerHTML">
+                    Tambah
+                </button>
+            </div>
+
+        </div>
+    </div>
+    {% endfor %}
+
+</div>

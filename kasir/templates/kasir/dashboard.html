@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+
+<h3 class="mb-4">Dashboard Penjualan</h3>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6>Total Penjualan Hari Ini</h6>
+                <h3>Rp {{ total_penjualan_hari_ini }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h6>Jumlah Transaksi Hari Ini</h6>
+                <h3>{{ total_transaksi_hari_ini }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BARIS 1 -->
+<div class="row mb-4">
+    <!-- Grafik Penjualan 7 Hari -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">Penjualan 7 Hari Terakhir</div>
+            <div class="card-body">
+                <canvas id="salesDailyChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grafik Produk Terlaris -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">Produk Terlaris (Qty)</div>
+            <div class="card-body">
+                <canvas id="topProductsChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- BARIS 2 -->
+<div class="row mb-4">
+    <!-- Grafik Jam Tersibuk -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">Jam Transaksi Tersibuk (Hari Ini)</div>
+            <div class="card-body">
+                <canvas id="hourlyChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grafik Stok Menipis -->
+    <div class="col-lg-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-header">Stok Menipis</div>
+            <div class="card-body">
+                <canvas id="lowStockChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const dailyLabels = {{ daily_labels|safe }};
+const dailyValues = {{ daily_values|safe }};
+
+const topProductsLabels = {{ top_products_labels|safe }};
+const topProductsValues = {{ top_products_values|safe }};
+
+const hourlyLabels = {{ hourly_labels|safe }};
+const hourlyValues = {{ hourly_values|safe }};
+
+const lowStockLabels = {{ low_stock_labels|safe }};
+const lowStockValues = {{ low_stock_values|safe }};
+
+// Chart: Penjualan 7 Hari
+new Chart(document.getElementById('salesDailyChart'), {
+    type: 'line',
+    data: {
+        labels: dailyLabels,
+        datasets: [{ data: dailyValues, tension: 0.4 }]
+    }
+});
+
+// Chart: Produk Terlaris
+new Chart(document.getElementById('topProductsChart'), {
+    type: 'bar',
+    data: {
+        labels: topProductsLabels,
+        datasets: [{ data: topProductsValues }]
+    }
+});
+
+// Chart: Jam Tersibuk
+new Chart(document.getElementById('hourlyChart'), {
+    type: 'bar',
+    data: {
+        labels: hourlyLabels,
+        datasets: [{ data: hourlyValues }]
+    }
+});
+
+// Chart: Stok Menipis
+new Chart(document.getElementById('lowStockChart'), {
+    type: 'bar',
+    data: {
+        labels: lowStockLabels,
+        datasets: [{
+            data: lowStockValues,
+            backgroundColor: 'rgba(255,99,132,0.6)'
+        }]
+    }
+});
+</script>
+
+{% endblock %}

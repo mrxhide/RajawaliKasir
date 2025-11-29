@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}POS - RajawaliKasir{% endblock %}
+
+{% block content %}
+
+<h3 class="mb-3">
+    <i class="bi bi-cash-register"></i> Point of Sale
+</h3>
+
+<div class="row g-3">
+
+    <!-- ====================== PRODUK GRID ====================== -->
+    <div class="col-md-7">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between">
+                <span><i class="bi bi-box-seam"></i> Daftar Produk</span>
+                <button class="btn btn-light btn-sm"
+                        hx-get="/pos/items/"
+                        hx-target="#produk-list">
+                    <i class="bi bi-arrow-repeat"></i>
+                </button>
+            </div>
+
+            <div class="p-3">
+                <input type="text"
+                       class="form-control mb-3"
+                       placeholder="Cari produk..."
+                       hx-get="/pos/items/"
+                       hx-trigger="keyup changed delay:300ms"
+                       hx-target="#produk-list"
+                       name="q">
+
+                <div id="produk-list"
+                     hx-get="/pos/items/"
+                     hx-trigger="load"
+                     hx-target="#produk-list"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ====================== KERANJANG BELANJA ====================== -->
+    <div class="col-md-5">
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-success text-white fw-bold d-flex justify-content-between">
+                <span id="cart-icon">
+                    <i class="bi bi-cart-check"></i> Keranjang Belanja
+                </span>
+
+                <button class="btn btn-light btn-sm"
+                        hx-get="/pos/cart/"
+                        hx-target="#cart-list">
+                    <i class="bi bi-arrow-repeat"></i>
+                </button>
+            </div>
+
+            <div class="p-3">
+                <div id="cart-list"
+                     hx-get="/pos/cart/"
+                     hx-trigger="load"
+                     hx-target="#cart-list"></div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL CHECKOUT -->
+<div id="checkout-modal"></div>
+
+<!-- SOUND -->
+<audio id="success-sound">
+    <source src="{% static 'kasir/sounds/tiing.mp3' %}" type="audio/mpeg">
+</audio>
+
+{% endblock %}
+
+
+{% block extra_js %}
+
+<!-- ANIMASI FLY TO CART -->
+<script>
+function flyToCart(img) {
+    if (!img) return;
+
+    const cart = document.querySelector('#cart-list');
+    const clone = img.cloneNode(true);
+
+    const rect = img.getBoundingClientRect();
+    clone.style.position = "fixed";
+    clone.style.left = rect.left + "px";
+    clone.style.top = rect.top + "px";
+    clone.style.width = img.clientWidth + "px";
+    clone.style.height = img.clientHeight + "px";
+    clone.style.zIndex = "9999";
+    clone.style.transition = "all 0.7s ease";
+
+    document.body.appendChild(clone);
+
+    const dst = cart.getBoundingClientRect();
+
+    setTimeout(() => {
+        clone.style.left = (dst.left + 20) + "px";
+        clone.style.top = dst.top + "px";
+        clone.style.width = "20px";
+        clone.style.height = "20px";
+        clone.style.opacity = "0.3";
+    }, 20);
+
+    setTimeout(() => clone.remove(), 700);
+}
+</script>
+
+<!-- ANIMASI FLY TO PRODUCT (TOMBOL MINUS) -->
+<script>
+function flyToProduct(productId) {
+    const img = document.getElementById("cart-img-" + productId);
+    const target = document.getElementById("prod-img-" + productId);
+    if (!img || !target) return;
+
+    const clone = img.cloneNode(true);
+    const rect = img.getBoundingClientRect();
+
+    clone.style.position = "fixed";
+    clone.style.left = rect.left + "px";
+    clone.style.top = rect.top + "px";
+    clone.style.width = "40px";
+    clone.style.height = "40px";
+    clone.style.zIndex = "9999";
+    clone.style.transition = "all 0.7s ease";
+
+    document.body.appendChild(clone);
+
+    const dst = target.getBoundingClientRect();
+
+    setTimeout(() => {
+        clone.style.left = dst.left + "px";
+        clone.style.top = dst.top + "px";
+        clone.style.width = "60px";
+        clone.style.height = "60px";
+        clone.style.opacity = "0.3";
+    }, 20);
+
+    setTimeout(() => clone.remove(), 700);
+}
+</script>
+
+
+<!-- SWEETALERT SUCCESS + SOUND -->
+{% if pos_success %}
+<script>
+Swal.fire({
+    icon: "success",
+    title: "Pembayaran Berhasil",
+    text: "Transaksi berhasil disimpan!",
+    showConfirmButton: false,
+    timer: 1500,
+    didOpen: () => {
+        const s = document.getElementById("success-sound");
+        s.play().catch(() => {
+            document.body.addEventListener("click", () => s.play(), { once: true });
+        });
+    }
+});
+</script>
+
+<div 
+    hx-post="/remove_pos_success/" 
+    hx-trigger="load"
+    hx-swap="none">
+</div>
+{% endif %}
+
+{% endblock %}

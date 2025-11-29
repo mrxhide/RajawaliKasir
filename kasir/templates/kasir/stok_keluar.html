@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3 class="mb-4">
+    <i class="bi bi-arrow-up-circle"></i> Stok Keluar
+</h3>
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+
+            <div class="mb-3">
+                <label class="form-label">Produk</label>
+                {{ form.product }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Jumlah Keluar</label>
+                {{ form.quantity }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Alasan / Catatan</label>
+                {{ form.note }}
+                <div class="form-text">Contoh: rusak, kadaluarsa, hilang, retur supplier, dsb.</div>
+            </div>
+
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    {{ form.errors }}
+                </div>
+            {% endif %}
+
+            <button class="btn btn-danger">Simpan Stok Keluar</button>
+            <a href="{% url 'kasir:stok_keluar_list' %}" class="btn btn-secondary">Riwayat Stok Keluar</a>
+
+        </div>
+    </div>
+
+</form>
+
+{% endblock %}

@@ -1,0 +1,71 @@
+<div class="modal-backdrop fade show"></div>
+
+<div class="modal fade show" tabindex="-1" style="display:block;" aria-modal="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <form 
+                hx-post="/pos/checkout/" 
+                hx-target="#checkout-modal" 
+                hx-swap="outerHTML"
+            >
+                {% csrf_token %}
+
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">Pembayaran</h5>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label>Total Belanja:</label>
+                        <input type="text" class="form-control" value="Rp {{ total }}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Metode Pembayaran</label>
+                        <select class="form-control" name="payment_method" id="pm" onchange="togglePay()">
+                            <option value="cash">Cash</option>
+                            <option value="transfer">Transfer</option>
+                            <option value="qris">QRIS</option>
+                        </select>
+                    </div>
+
+                    <div id="paid-box" class="mb-3">
+                        <label>Bayar (Rp)</label>
+                        <input type="number" class="form-control" name="paid" id="paid-input">
+                    </div>
+
+                    <div id="qris-box" class="text-center" style="display:none;">
+                        <p>Scan QRIS untuk pembayaran:</p>
+                        <img src="data:image/png;base64,{{ qris_image }}" width="220">
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success w-100">Proses Pembayaran</button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePay() {
+    let pm = document.getElementById("pm").value;
+    let paid = document.getElementById("paid-input");
+
+    if (pm === "qris") {
+        document.getElementById("paid-box").style.display = "none";
+        document.getElementById("qris-box").style.display = "block";
+        paid.removeAttribute("required");
+    } else {
+        document.getElementById("paid-box").style.display = "block";
+        document.getElementById("qris-box").style.display = "none";
+        paid.setAttribute("required", "required");
+    }
+}
+</script>

@@ -1,0 +1,17 @@
+{% load static %}
+
+<audio id="error-sound">
+    <source src="{% static 'kasir/sounds/beep.mp3' %}" type="audio/mpeg">
+</audio>
+
+<script>
+    document.getElementById("error-sound").play();
+
+    Swal.fire({
+        icon: "error",
+        title: "Stok Tidak Cukup!",
+        text: "{{ message }}",
+        confirmButtonColor: "#d33",
+        timer: 1800
+    });
+</script>

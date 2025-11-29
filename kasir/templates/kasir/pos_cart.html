@@ -1,0 +1,125 @@
+<style>
+.cart-image {
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}
+
+.qty-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 50px;
+}
+
+.qty-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.qty-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    font-size: 16px;
+    align-items: center;
+    justify-content: center;
+}
+</style>
+
+
+<table class="table table-bordered align-middle">
+<thead class="table-success text-center">
+    <tr>
+        <th width="45%">Produk</th>
+        <th width="20%">Qty</th>
+        <th width="20%" class="text-end">Total</th>
+        <th width="10%">Aksi</th>
+    </tr>
+</thead>
+
+<tbody>
+{% for item in cart %}
+<tr>
+
+    <td class="fw-semibold">
+        <div class="d-flex align-items-center">
+            <img src="{{ item.product.image.url|default:'https://via.placeholder.com/80' }}"
+                 id="cart-img-{{ item.product.id }}"
+                 class="cart-image me-2">
+
+            <div>
+                {{ item.product.name }} <br>
+                <small class="text-muted">Rp {{ item.product.sell_price|floatformat:0 }} × {{ item.qty }}</small>
+            </div>
+        </div>
+    </td>
+
+    <td class="text-center">
+        <div class="qty-wrapper">
+
+            <!-- MINUS -->
+            <button class="btn btn-outline-danger qty-btn"
+                    onclick="flyToProduct({{ item.product.id }})"
+                    hx-post="/pos/cart/decrease/{{ item.id }}/"
+                    hx-target="#cart-list"
+                    hx-swap="innerHTML">
+                <i class="bi bi-dash-lg"></i>
+            </button>
+
+            <!-- BADGE -->
+            <span class="badge bg-primary qty-badge">{{ item.qty }}</span>
+
+            <!-- PLUS -->
+            <button class="btn btn-outline-success qty-btn"
+                    onclick="increaseCartQty({{ item.product.id }}, {{ item.product.stock }})"
+                    hx-post="/pos/cart/increase/{{ item.id }}/"
+                    hx-target="#cart-list"
+                    hx-swap="innerHTML">
+                <i class="bi bi-plus-lg"></i>
+            </button>
+
+        </div>
+    </td>
+
+    <td class="text-end fw-bold">
+        Rp {{ item.total|floatformat:0 }}
+    </td>
+
+    <td class="text-center">
+        <button class="btn btn-danger btn-sm"
+                hx-post="/pos/cart/remove/{{ item.id }}/"
+                hx-target="#cart-list"
+                hx-swap="innerHTML">
+            <i class="bi bi-trash"></i>
+        </button>
+    </td>
+
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<hr>
+
+<div class="d-flex justify-content-between align-items-center">
+    <h4 class="fw-bold mb-0">Total: <span class="text-success">Rp {{ total|floatformat:0 }}</span></h4>
+
+    <button class="btn btn-primary btn-lg px-4 fw-bold"
+            hx-get="/pos/checkout/"
+            hx-target="#checkout-modal"
+            hx-swap="innerHTML"
+            {% if total == 0 %} disabled {% endif %}>
+        <i class="bi bi-credit-card"></i> Bayar
+    </button>
+</div>

@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Struk Penjualan{% endblock %}
+
+{% block content %}
+
+<style>
+/* Container struk untuk tampilan layar */
+.struk-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+/* Ukuran 58mm, kalau pakai 80mm ganti jadi 80mm */
+.struk {
+    width: 58mm;
+    background: #fff;
+    padding: 10px;
+    font-size: 11px;
+    border: 1px solid #ddd;
+}
+
+/* Teks kecil & rapat */
+.struk table {
+    width: 100%;
+    font-size: 11px;
+}
+
+/* Garis putus-putus */
+.struk hr {
+    border-top: 1px dashed #000;
+    margin: 6px 0;
+}
+
+/* Print mode khusus */
+@media print {
+    body {
+        background: #fff !important;
+    }
+
+    /* Hilangkan navbar, container besar, tombol, dll saat print */
+    nav, .navbar, .btn-print, .no-print {
+        display: none !important;
+    }
+
+    .container {
+        margin: 0;
+        padding: 0;
+        max-width: none;
+    }
+
+    .struk-wrapper {
+        justify-content: flex-start;
+    }
+
+    .struk {
+        border: none;
+        box-shadow: none;
+        width: 58mm; /* Atur sesuai lebar kertas */
+        margin: 0;
+    }
+}
+</style>
+
+<div class="struk-wrapper">
+    <div class="struk">
+
+        <div class="text-center">
+            <strong>RajawaliKasir</strong><br>
+            <small>Toko Sembako Rajawali</small><br>
+            <small>Jl. Contoh Alamat No. 123</small><br>
+        </div>
+
+        <hr>
+
+        <table>
+            <tr>
+                <td>Invoice</td>
+                <td>: {{ sale.invoice_no }}</td>
+            </tr>
+            <tr>
+                <td>Tanggal</td>
+                <td>: {{ sale.date_time }}</td>
+            </tr>
+            <tr>
+                <td>Kasir</td>
+                <td>: {{ sale.cashier.username }}</td>
+            </tr>
+        </table>
+
+        <hr>
+
+        <table>
+            <thead>
+                <tr>
+                    <th align="left">Item</th>
+                    <th align="center">Qty</th>
+                    <th align="right">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sale.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td align="center">{{ item.qty }}</td>
+                    <td align="right">{{ item.total }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <hr>
+
+        <table>
+            <tr>
+                <td><strong>Total</strong></td>
+                <td align="right"><strong>{{ sale.total }}</strong></td>
+            </tr>
+            <tr>
+                <td>Dibayar</td>
+                <td align="right">{{ sale.paid_amount }}</td>
+            </tr>
+            <tr>
+                <td>Kembalian</td>
+                <td align="right">{{ sale.change_amount }}</td>
+            </tr>
+        </table>
+
+        <hr>
+
+        <div class="text-center">
+            <small>Terima kasih telah berbelanja</small><br>
+            <small>Barang yang sudah dibeli</small><br>
+            <small>tidak dapat dikembalikan</small>
+        </div>
+
+    </div>
+</div>
+
+<!-- Tombol print hanya tampil di layar -->
+<div class="mt-3 text-center no-print">
+    <button class="btn btn-primary btn-print" onclick="window.print()">
+        <i class="bi bi-printer"></i> Print Struk
+    </button>
+    <a href="/pos/" class="btn btn-secondary">Kembali ke POS</a>
+</div>
+
+{% endblock %}

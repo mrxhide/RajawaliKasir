@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h3 class="mb-4">
+    <i class="bi bi-journal-x"></i> Riwayat Stok Keluar
+</h3>
+
+<table class="table table-bordered table-hover">
+    <thead class="table-danger">
+        <tr>
+            <th>Produk</th>
+            <th>Jumlah</th>
+            <th>Tanggal</th>
+            <th>Alasan / Catatan</th>
+        </tr>
+    </thead>
+
+    <tbody>
+    {% for m in movements %}
+        <tr>
+            <td>{{ m.product.name }}</td>
+            <td>{{ m.qty_display }}</td>
+            <td>{{ m.created_at }}</td>
+            <td>{{ m.note }}</td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="4" class="text-center text-muted">Belum ada data stok keluar.</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
